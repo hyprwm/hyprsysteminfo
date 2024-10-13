@@ -152,6 +152,26 @@ ApplicationWindow {
             Layout.rightMargin: 60
 
             Text {
+                visible: hsi.getUserAt().length() > 0
+                text: "User: " + hsi.getUserAt()
+                Layout.maximumWidth: _width - 120
+                color: system.windowText
+                elide: Text.ElideRight
+                textFormat: Text.PlainText
+                wrapMode: Text.NoWrap
+            }
+
+            Text {
+                visible: hsi.getModel().length() > 0
+                text: "Model: " + hsi.getModel()
+                Layout.maximumWidth: _width - 120
+                color: system.windowText
+                elide: Text.ElideRight
+                textFormat: Text.PlainText
+                wrapMode: Text.NoWrap
+            }
+
+            Text {
                 text: "CPU: " + hsi.getCPUInfo()
                 Layout.maximumWidth: _width - 120
                 color: system.windowText
@@ -178,6 +198,33 @@ ApplicationWindow {
 
             Text {
                 text: "Memory: " + hsi.getRAMInfo()
+                Layout.maximumWidth: _width - 120
+                color: system.windowText
+                elide: Text.ElideRight
+                textFormat: Text.PlainText
+                wrapMode: Text.NoWrap
+            }
+
+            Text {
+                text: "DE: " + hsi.getDE()
+                Layout.maximumWidth: _width - 120
+                color: system.windowText
+                elide: Text.ElideRight
+                textFormat: Text.PlainText
+                wrapMode: Text.NoWrap
+            }
+
+            Text {
+                text: "Uptime: " + hsi.getUptime()
+                Layout.maximumWidth: _width - 120
+                color: system.windowText
+                elide: Text.ElideRight
+                textFormat: Text.PlainText
+                wrapMode: Text.NoWrap
+            }
+
+            Text {
+                text: "Displays: " + hsi.getDisplays()
                 Layout.maximumWidth: _width - 120
                 color: system.windowText
                 elide: Text.ElideRight

@@ -23,6 +23,8 @@ class CSystemInternals : public QObject {
 
     QString              hlSystemInfo = "[error]", hlSystemVersion = "[error]";
 
+    QString              uptime = "unknown", DE = "Unknown", screens = "unknown", board = "", user = "";
+
     Q_INVOKABLE bool     hasSystemLogoName() {
         return systemLogoName.size() > 0;
     }
@@ -71,6 +73,26 @@ class CSystemInternals : public QObject {
 
     Q_INVOKABLE QString getRAMInfo() {
         return ramInfo;
+    }
+
+    Q_INVOKABLE QString getDE() {
+        return DE;
+    }
+
+    Q_INVOKABLE QString getUptime() {
+        return uptime;
+    }
+
+    Q_INVOKABLE QString getDisplays() {
+        return screens;
+    }
+
+    Q_INVOKABLE QString getModel() {
+        return board;
+    }
+
+    Q_INVOKABLE QString getUserAt() {
+        return user;
     }
 
     Q_INVOKABLE void copySystemInfo();

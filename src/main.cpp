@@ -4,6 +4,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
+#include <QScreen>
 #include <fstream>
 #include <format>
 #include "util/Utils.hpp"
@@ -12,7 +13,19 @@
 #include <hyprutils/string/String.hpp>
 using namespace Hyprutils::String;
 
-static void getSystemInfo(CSystemInternals* hsi) {
+static std::string readFile(const std::string& filename) {
+    try {
+        std::ifstream ifs(filename);
+        if (ifs.good()) {
+            std::string data(std::istreambuf_iterator<char>{ifs}, {});
+            ifs.close();
+            return trim(data);
+        }
+    } catch (...) { return "[error]"; }
+    return "[error]";
+}
+
+static void getSystemInfo(CSystemInternals* hsi, QGuiApplication* app) {
 
     // gather data from os-release
     std::ifstream osInfo("/etc/os-release");
@@ -147,6 +160,31 @@ static void getSystemInfo(CSystemInternals* hsi) {
             hsi->ramInfo = std::format("{} / {}", ramIntToReadable(props[2]), ramIntToReadable(props[1])).c_str();
         }
     }
+
+    // other, misc
+    if (const auto DE = getenv("XDG_CURRENT_DESKTOP"); DE)
+        hsi->DE = DE;
+
+    if (const auto UPTIME = execAndGet("uptime -p"); !UPTIME.empty())
+        hsi->uptime = trim(UPTIME.find("up ") == 0 ? UPTIME.substr(3) : UPTIME).c_str();
+
+    {
+        std::string screens;
+
+        for (auto& s : app->screens()) {
+            screens += std::format("{} ({}x{}), ", s->name().toStdString(), s->geometry().width(), s->geometry().height());
+        }
+
+        if (!screens.empty())
+            screens = screens.substr(0, screens.length() - 2);
+
+        hsi->screens = screens.c_str();
+    }
+
+    hsi->user = std::format("{}@{}", trim(execAndGet("whoami")), readFile("/etc/hostname")).c_str();
+
+    if (const auto BOARD = readFile("/sys/devices/virtual/dmi/id/board_name"); BOARD != "[error]")
+        hsi->board = BOARD.c_str();
 }
 
 int main(int argc, char* argv[]) {
@@ -158,7 +196,7 @@ int main(int argc, char* argv[]) {
 
     auto systemInternals = new CSystemInternals;
 
-    getSystemInfo(systemInternals);
+    getSystemInfo(systemInternals, &app);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("hsi", systemInternals);
