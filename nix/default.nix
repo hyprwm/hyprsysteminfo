@@ -1,28 +1,23 @@
 {
   lib,
+  nix-gitignore,
   stdenv,
+
   cmake,
-  kdePackages,
-  pciutils,
   qt6,
   pkg-config,
   hyprutils,
+  pciutils,
+  kdePackages,
   version ? "0",
 }: let
-  inherit (lib.sources) cleanSource cleanSourceWith;
-  inherit (lib.strings) hasSuffix makeBinPath;
+  inherit (lib.strings) makeBinPath;
 in
   stdenv.mkDerivation {
     pname = "hyprsysteminfo";
     inherit version;
 
-    src = cleanSourceWith {
-      filter = name: _type: let
-        baseName = baseNameOf (toString name);
-      in
-        ! (hasSuffix ".nix" baseName);
-      src = cleanSource ../.;
-    };
+    src = nix-gitignore.gitignoreSource [] ./..;
 
     nativeBuildInputs = [
       cmake
@@ -31,11 +26,13 @@ in
     ];
 
     buildInputs = [
-      kdePackages.kirigami-addons
       qt6.qtbase
+      qt6.qtdeclarative
       qt6.qtsvg
       qt6.qtwayland
       hyprutils
+      kdePackages.qqc2-desktop-style
+      kdePackages.kirigami
     ];
 
     preFixup = ''
