@@ -59,7 +59,7 @@ static void getSystemInfo(CSystemInternals* hsi, QGuiApplication* app) {
     }
 
     // get kernel ver
-    hsi->systemKernel = execAndGet("uname -r").c_str();
+    hsi->systemKernel = trim(execAndGet("uname -r")).c_str();
 
     // get hyprland info
     if (getenv("HYPRLAND_INSTANCE_SIGNATURE")) {
