@@ -159,13 +159,20 @@ ApplicationWindow {
                 wrapMode: Text.NoWrap
             }
 
-            Text {
-                text: hsi.getGPUInfo()
-                Layout.maximumWidth: _width - 120
-                color: system.windowText
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                wrapMode: Text.NoWrap
+            Repeater {
+                model: hsi.getGPUInfoCount()
+
+                Text {
+                    required property int index
+
+                    text: "GPU: " + hsi.getGPUInfo(index)
+                    Layout.maximumWidth: _width - 120
+                    color: system.windowText
+                    elide: Text.ElideRight
+                    textFormat: Text.PlainText
+                    wrapMode: Text.NoWrap
+                }
+
             }
 
             Text {

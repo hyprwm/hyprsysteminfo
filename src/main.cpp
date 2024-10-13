@@ -105,16 +105,15 @@ static void getSystemInfo(CSystemInternals* hsi) {
     {
         const auto DATA = execAndGet("lspci -vnn | grep VGA");
         if (DATA.contains("VGA")) {
-            CVarList    data(DATA, 0, '\n');
-            std::string gpuInfo;
+            CVarList data(DATA, 0, '\n');
+            hsi->gpuInfo.clear();
             for (auto& line : data) {
                 if (!line.contains("VGA"))
                     continue;
-                gpuInfo += std::format("GPU: {}\n", line.substr(line.find(":", line.find("VGA")) + 1));
+                hsi->gpuInfo.emplace_back(std::format("{}", line.substr(line.find(":", line.find("VGA")) + 2)).c_str());
             }
-            hsi->gpuInfo = gpuInfo.substr(0, gpuInfo.length() - 1).c_str();
         } else {
-            hsi->gpuInfo = "No GPUs found";
+            hsi->gpuInfo = {"No GPUs found"};
         }
     }
 

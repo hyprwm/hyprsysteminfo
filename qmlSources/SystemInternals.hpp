@@ -14,16 +14,16 @@ class CSystemInternals : public QObject {
         ;
     }
 
-    QString          systemLogoName, systemName = "Linux", systemURL = "https://kernel.org/", systemKernel = "unknown";
-    QString          hyprlandVersion, hyprlandVersionLong;
+    QString              systemLogoName, systemName = "Linux", systemURL = "https://kernel.org/", systemKernel = "unknown";
+    QString              hyprlandVersion, hyprlandVersionLong;
 
-    QString          cpuInfo = "missing dependency: lscpu";
-    QString          gpuInfo = "GPU: missing dependency: lspci";
-    QString          ramInfo = "?";
+    QString              cpuInfo = "missing dependency: lscpu";
+    std::vector<QString> gpuInfo = {"missing dependency: lspci"};
+    QString              ramInfo = "?";
 
-    QString          hlSystemInfo = "[error]", hlSystemVersion = "[error]";
+    QString              hlSystemInfo = "[error]", hlSystemVersion = "[error]";
 
-    Q_INVOKABLE bool hasSystemLogoName() {
+    Q_INVOKABLE bool     hasSystemLogoName() {
         return systemLogoName.size() > 0;
     }
 
@@ -59,8 +59,14 @@ class CSystemInternals : public QObject {
         return cpuInfo;
     }
 
-    Q_INVOKABLE QString getGPUInfo() {
-        return gpuInfo;
+    Q_INVOKABLE int getGPUInfoCount() {
+        return gpuInfo.size();
+    }
+
+    Q_INVOKABLE QString getGPUInfo(int idx) {
+        if (idx >= gpuInfo.size())
+            return "[error]";
+        return gpuInfo.at(idx);
     }
 
     Q_INVOKABLE QString getRAMInfo() {
