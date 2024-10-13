@@ -183,7 +183,9 @@ static void getSystemInfo(CSystemInternals* hsi, QGuiApplication* app) {
 
     hsi->user = std::format("{}@{}", trim(execAndGet("whoami")), readFile("/etc/hostname")).c_str();
 
-    if (const auto BOARD = readFile("/sys/devices/virtual/dmi/id/board_name"); BOARD != "[error]")
+    if (const auto PRODUCT = readFile("/sys/devices/virtual/dmi/id/product_name"); PRODUCT != "[error]")
+        hsi->board = PRODUCT.c_str();
+    else if (const auto BOARD = readFile("/sys/devices/virtual/dmi/id/board_name"); BOARD != "[error]")
         hsi->board = BOARD.c_str();
 }
 
