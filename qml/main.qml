@@ -124,6 +124,7 @@ ApplicationWindow {
                     }
 
                     Text {
+                        visible: hsi.getHyprlandVersion() != hsi.getHyprlandVersionLong()
                         text: hsi.getHyprlandVersionLong()
                         Layout.alignment: Qt.AlignHCenter
                         color: system.windowText
