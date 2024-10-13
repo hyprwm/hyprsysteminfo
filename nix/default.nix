@@ -5,6 +5,7 @@
   pkg-config,
   hyprutils,
   kdePackages,
+  pciutils,
   qt6,
   version ? "0",
 }: let
@@ -32,6 +33,7 @@ in
     buildInputs = [
       hyprutils
       kdePackages.kirigami-addons
+      pciutils
       qt6.qtbase
       qt6.qtsvg
       qt6.qtwayland
