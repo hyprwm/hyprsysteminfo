@@ -1,6 +1,6 @@
 #include "qmlSources/SystemIconProvider.hpp"
 #include "qmlSources/SystemInternals.hpp"
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
@@ -11,6 +11,7 @@
 
 #include <hyprutils/string/VarList.hpp>
 #include <hyprutils/string/String.hpp>
+#include <qtenvironmentvariables.h>
 using namespace Hyprutils::String;
 
 static std::string readFile(const std::string& filename) {
@@ -205,11 +206,12 @@ static void getSystemInfo(CSystemInternals* hsi, QGuiApplication* app) {
 }
 
 int main(int argc, char* argv[]) {
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     app.setApplicationName("Hyprland System Info");
 
-    QQuickStyle::setStyle("org.kde.desktop");
+    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE"))
+        QQuickStyle::setStyle("org.kde.desktop");
 
     auto systemInternals = new CSystemInternals;
 
