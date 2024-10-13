@@ -165,8 +165,23 @@ static void getSystemInfo(CSystemInternals* hsi, QGuiApplication* app) {
     if (const auto DE = getenv("XDG_CURRENT_DESKTOP"); DE)
         hsi->DE = DE;
 
-    if (const auto UPTIME = execAndGet("uptime -p"); !UPTIME.empty())
-        hsi->uptime = trim(UPTIME.find("up ") == 0 ? UPTIME.substr(3) : UPTIME).c_str();
+    if (const auto UPTIME = readFile("/proc/uptime"); UPTIME != "[error]") {
+        CVarList data(UPTIME, 0, 's', true);
+        try {
+            int  uptimeSeconds = std::round(std::stof(data[0]));
+            int  uptimeDays    = std::floor(uptimeSeconds / 3600.0 / 24.0);
+            int  uptimeHours   = std::floor((uptimeSeconds % (3600 * 24)) / 3600.0);
+            int  uptimeMinutes = std::floor((uptimeSeconds % (3600)) / 60.0);
+
+            auto upStr = std::format("{}{}{}", (uptimeDays > 0 ? std::format("{} days, ", uptimeDays) : ""), (uptimeHours > 0 ? std::format("{} hours, ", uptimeHours) : ""),
+                                     (uptimeMinutes > 0 ? std::format("{} minutes, ", uptimeMinutes) : ""));
+
+            if (!upStr.empty())
+                upStr = upStr.substr(0, upStr.length() - 2);
+
+            hsi->uptime = upStr.c_str();
+        } catch (...) { ; }
+    }
 
     {
         std::string screens;
