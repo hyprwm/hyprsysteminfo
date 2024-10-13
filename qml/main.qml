@@ -204,12 +204,16 @@ ApplicationWindow {
 
             Button {
                 text: "Copy Hyprland System Info"
-                onClicked: (e) => {hsi.copySystemInfo();}
+                onClicked: (e) => {
+                    hsi.copySystemInfo();
+                }
             }
 
             Button {
                 text: "Copy Hyprland Version"
-                onClicked: (e) => {hsi.copyVersion();}
+                onClicked: (e) => {
+                    hsi.copyVersion();
+                }
             }
 
         }
