@@ -186,6 +186,7 @@ ApplicationWindow {
         }
 
         Rectangle {
+            visible: hsi.hasHyprland()
             color: Qt.darker(system.text, 1.5)
             Layout.preferredHeight: 1
             Layout.fillWidth: true
@@ -196,6 +197,7 @@ ApplicationWindow {
         }
 
         RowLayout {
+            visible: hsi.hasHyprland()
             spacing: 6
             Layout.leftMargin: 20
             Layout.rightMargin: 20
