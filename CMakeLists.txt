@@ -50,3 +50,5 @@ install(TARGETS hyprsysteminfo
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+install(FILES assets/install/hyprsysteminfo.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)

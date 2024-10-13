@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=System Info
+GenericName=System Information Application
+Comment=A system information app from the Hyprland project
+Exec=hyprsysteminfo
+Terminal=false
+Type=Application
