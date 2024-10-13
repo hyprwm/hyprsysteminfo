@@ -50,18 +50,20 @@ static void getSystemInfo(CSystemInternals* hsi) {
 
     // get hyprland info
     if (getenv("HYPRLAND_INSTANCE_SIGNATURE")) {
-        const auto DATA = execAndGet("hyprctl version");
-        if (DATA.contains("Tag:")) {
-            hsi->hlSystemVersion = DATA.c_str();
-
+        const auto DATA      = execAndGet("hyprctl version");
+        hsi->hlSystemVersion = DATA.c_str();
+        if (DATA.contains("Hyprland")) {
             auto temp                = DATA.substr(DATA.find("Tag:") + 5);
             temp                     = temp.substr(0, temp.find(","));
             hsi->hyprlandVersionLong = temp.c_str();
             hsi->hyprlandVersion     = temp.substr(0, temp.find("-")).c_str();
+        } else {
+            hsi->hyprlandVersionLong = "unknown";
+            hsi->hyprlandVersion     = "unknown";
         }
 
         const auto DATA2 = execAndGet("hyprctl systeminfo");
-        if (DATA2.contains("Tag:"))
+        if (DATA2.contains("Hyprland"))
             hsi->hlSystemInfo = DATA2.c_str();
     }
 
