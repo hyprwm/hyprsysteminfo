@@ -52,12 +52,22 @@ static void getSystemInfo(CSystemInternals* hsi) {
     if (getenv("HYPRLAND_INSTANCE_SIGNATURE")) {
         const auto DATA      = execAndGet("hyprctl version");
         hsi->hlSystemVersion = DATA.c_str();
-        if (DATA.contains("Hyprland")) {
+
+        if (DATA.contains("Tag:")) {
             auto temp                = DATA.substr(DATA.find("Tag:") + 5);
             temp                     = temp.substr(0, temp.find(","));
             hsi->hyprlandVersionLong = temp.c_str();
             hsi->hyprlandVersion     = temp.substr(0, temp.find("-")).c_str();
-        } else {
+        }
+
+        if (hsi->hyprlandVersionLong.length() <= 0 && DATA.contains("at commit")) {
+            auto temp                = DATA.substr(DATA.find("at commit") + 10);
+            temp                     = temp.substr(0, temp.find(" "));
+            hsi->hyprlandVersionLong = temp.substr(0, 7).c_str();
+            hsi->hyprlandVersion     = temp.substr(0, 7).c_str();
+        }
+
+        if (hsi->hyprlandVersionLong.length() <= 0) {
             hsi->hyprlandVersionLong = "unknown";
             hsi->hyprlandVersion     = "unknown";
         }
