@@ -3,8 +3,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 ApplicationWindow {
-    property var _width: 620
-    property var _height: 400
+    property var _width: 720
+    property var _height: 440
     property var _first_panel_height: 120
 
     minimumWidth: _width
