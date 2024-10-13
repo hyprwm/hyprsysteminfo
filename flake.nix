@@ -34,5 +34,17 @@
       default = self.packages.${system}.hyprsysteminfo;
       inherit (pkgsFor.${system}) hyprsysteminfo;
     });
+
+    devShells = eachSystem (system: {
+      default = pkgsFor.${system}.mkShell {
+        inputsFrom = [self.packages.${system}.hyprsysteminfo];
+
+        shellHook = ''
+          # Generate compile_commands.json
+          CMAKE_EXPORT_COMPILE_COMMANDS=1 cmake -S . -B ./build
+          ln -s build/compile_commands.json .
+        '';
+      };
+    });
   };
 }
