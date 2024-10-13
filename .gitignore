@@ -34,5 +34,10 @@
 .vscode/
 .cache/
 build/
+/result
+
+# direnv
+/.direnv
+/.envrc
 
 compile_commands.json
