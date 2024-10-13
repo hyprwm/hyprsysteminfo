@@ -10,7 +10,7 @@
   version ? "0",
 }: let
   inherit (lib.sources) cleanSource cleanSourceWith;
-  inherit (lib.strings) hasSuffix;
+  inherit (lib.strings) hasSuffix makeBinPath;
 in
   stdenv.mkDerivation {
     pname = "hyprsysteminfo";
@@ -33,11 +33,14 @@ in
     buildInputs = [
       hyprutils
       kdePackages.kirigami-addons
-      pciutils
       qt6.qtbase
       qt6.qtsvg
       qt6.qtwayland
     ];
+
+    preFixup = ''
+      qtWrapperArgs+=(--prefix PATH : "${makeBinPath [pciutils]}")
+    '';
 
     meta = {
       description = "A tiny qt6/qml application to display information about the running system";
