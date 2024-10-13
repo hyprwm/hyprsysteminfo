@@ -152,7 +152,7 @@ ApplicationWindow {
             Layout.rightMargin: 60
 
             Text {
-                visible: hsi.getUserAt().length() > 0
+                visible: hsi.getUserAt().length > 0
                 text: "User: " + hsi.getUserAt()
                 Layout.maximumWidth: _width - 120
                 color: system.windowText
@@ -162,7 +162,7 @@ ApplicationWindow {
             }
 
             Text {
-                visible: hsi.getModel().length() > 0
+                visible: hsi.getModel().length > 0
                 text: "Model: " + hsi.getModel()
                 Layout.maximumWidth: _width - 120
                 color: system.windowText
