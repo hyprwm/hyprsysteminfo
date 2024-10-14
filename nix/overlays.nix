@@ -14,7 +14,6 @@ in {
   default = self.overlays.hyprsysteminfo;
 
   hyprsysteminfo = lib.composeManyExtensions [
-    inputs.hyprutils.overlays.default
     (final: prev: {
       hyprsysteminfo = final.callPackage ./. {
         version = "${version}+date=${date}_${self.shortRev or "dirty"}";

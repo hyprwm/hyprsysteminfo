@@ -1,5 +1,7 @@
 #pragma once
 
-#include <string>
+#include <qlist.h>
+#include <qstring.h>
 
-std::string execAndGet(const char* cmd);
+QString execAndGet(const QString& program, const QStringList& arguments = {});
+QString substrUntil(const QString& string, char until);

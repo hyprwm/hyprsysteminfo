@@ -2,8 +2,6 @@
   lib,
   stdenv,
   cmake,
-  pkg-config,
-  hyprutils,
   kdePackages,
   pciutils,
   qt6,
@@ -26,12 +24,10 @@ in
 
     nativeBuildInputs = [
       cmake
-      pkg-config
       qt6.wrapQtAppsHook
     ];
 
     buildInputs = [
-      hyprutils
       kdePackages.kirigami-addons
       qt6.qtbase
       qt6.qtsvg
