@@ -1,255 +1,178 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
 ApplicationWindow {
-    property var _width: 720
-    property var _height: 440
-    property var _first_panel_height: 120
+    id: window
 
-    minimumWidth: _width
-    maximumWidth: _width
-    width: _width
-    minimumHeight: _height
-    maximumHeight: _height
-    height: _height
+    FontMetrics { id: fontMetrics }
+
+    property var firstPanelHeight: fontMetrics.height * 7
+
+    minimumWidth: Math.max(fontMetrics.height * 50, mainLayout.Layout.minimumWidth) + mainLayout.anchors.margins * 2
+    minimumHeight: Math.max(fontMetrics.height * 30, mainLayout.Layout.minimumHeight) + mainLayout.anchors.margins * 2
+    maximumWidth: minimumWidth
+    maximumHeight: minimumHeight
     visible: true
 
-    SystemPalette {
-        id: system
+    component Separator: Rectangle {
+        color: Qt.darker(window.palette.text, 1.5)
+    }
 
-        colorGroup: SystemPalette.Active
+    component VSeparator: Separator {
+        implicitWidth: 1
+        Layout.fillHeight: true
+        Layout.topMargin: fontMetrics.height
+        Layout.bottomMargin: fontMetrics.height
+    }
+
+    component HSeparator: Separator {
+        implicitHeight: 1
+        Layout.fillWidth: true
+        Layout.leftMargin: fontMetrics.height * 8
+        Layout.rightMargin: fontMetrics.height * 8
     }
 
     ColumnLayout {
         id: mainLayout
-
-        anchors.margins: 4
+        spacing: fontMetrics.height
 
         anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
+            fill: parent
+            margins: 4
         }
 
         RowLayout {
             // First panel hyprland and distro info
-            Layout.fillWidth: true
-            Layout.preferredHeight: _first_panel_height
-            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: firstPanelHeight
+            Layout.maximumHeight: firstPanelHeight
+            Layout.topMargin: fontMetrics.height
+            spacing: fontMetrics.height
+
+            Item { Layout.fillWidth: true }
 
             RowLayout {
                 id: distroLogoName
-
-                Layout.preferredWidth: _width / 2 - 40
-                spacing: 10
+                spacing: fontMetrics.height
 
                 Image {
                     visible: hsi.hasSystemLogoName()
                     source: "image://systemIcons/" + hsi.getSystemLogoName()
-                    sourceSize.width: _first_panel_height - 10
-                    sourceSize.height: _first_panel_height - 10
-                    Layout.preferredWidth: _first_panel_height - 10
-                    Layout.preferredHeight: _first_panel_height - 10
+                    sourceSize.width: firstPanelHeight
+                    sourceSize.height: firstPanelHeight
+                    Layout.preferredWidth: firstPanelHeight
+                    Layout.preferredHeight: firstPanelHeight
                     Layout.alignment: Qt.AlignCenter
                     smooth: true
                 }
 
                 ColumnLayout {
-                    spacing: 2
+                    id: distroText
 
-                    Text {
+                    Layout.preferredWidth: hyprlandInfo.visible ? Math.max(Layout.minimumWidth, hyprlandText.Layout.minimumWidth) : Layout.minimumWidth
+                    spacing: 2
+                    Layout.alignment: Qt.AlignVCenter
+
+                    Label {
                         text: hsi.getSystemName()
                         Layout.alignment: Qt.AlignHCenter
-                        color: system.windowText
                     }
 
-                    Text {
+                    Label {
                         text: hsi.getSystemURL()
                         Layout.alignment: Qt.AlignHCenter
-                        color: system.windowText
                     }
 
-                    Text {
+                    Label {
                         text: hsi.getSystemKernel()
                         Layout.alignment: Qt.AlignHCenter
-                        color: system.windowText
                     }
-
                 }
-
             }
 
-            Rectangle {
-                visible: hsi.hasHyprland()
-                color: Qt.darker(system.text, 1.5)
-                Layout.preferredWidth: 1
-                Layout.preferredHeight: _first_panel_height - 40
-                Layout.leftMargin: 20
-                Layout.rightMargin: 20
-                Layout.alignment: Qt.AlignVCenter
-            }
+            Item { visible: hyprlandInfo.visible; Layout.fillWidth: true }
+            VSeparator { visible: hyprlandInfo.visible }
+            Item { visible: hyprlandInfo.visible; Layout.fillWidth: true }
 
             RowLayout {
                 id: hyprlandInfo
-
                 visible: hsi.hasHyprland()
-                Layout.preferredWidth: _width / 2 - 40
-                spacing: 10
+                spacing: fontMetrics.height
 
                 Image {
                     source: "qrc:/resource/hyprlandlogo.svg"
-                    sourceSize.width: _first_panel_height - 10
-                    sourceSize.height: _first_panel_height - 10
-                    Layout.preferredWidth: _first_panel_height - 10
-                    Layout.preferredHeight: _first_panel_height - 10
+                    sourceSize.width: firstPanelHeight
+                    sourceSize.height: firstPanelHeight
+                    Layout.preferredWidth: firstPanelHeight
+                    Layout.preferredHeight: firstPanelHeight
                     Layout.alignment: Qt.AlignCenter
                     smooth: true
                 }
 
                 ColumnLayout {
+                    id: hyprlandText
+                    Layout.preferredWidth: Math.max(Layout.minimumWidth, distroText.Layout.minimumWidth)
                     spacing: 2
+                    Layout.alignment: Qt.AlignVCenter
 
-                    Text {
+                    Label {
                         text: "Hyprland"
                         Layout.alignment: Qt.AlignHCenter
-                        color: system.windowText
                     }
 
-                    Text {
+                    Label {
                         text: hsi.getHyprlandVersion()
                         Layout.alignment: Qt.AlignHCenter
-                        color: system.windowText
                     }
 
-                    Text {
+                    Label {
                         visible: hsi.getHyprlandVersion() != hsi.getHyprlandVersionLong()
                         text: hsi.getHyprlandVersionLong()
                         Layout.alignment: Qt.AlignHCenter
-                        color: system.windowText
                     }
-
                 }
-
             }
 
+            Item { Layout.fillWidth: true }
         }
 
-        Rectangle {
-            color: Qt.darker(system.text, 1.5)
-            Layout.preferredHeight: 1
-            Layout.fillWidth: true
-            Layout.leftMargin: 180
-            Layout.rightMargin: 180
-            Layout.topMargin: 10
-            Layout.bottomMargin: 10
-        }
+        HSeparator {}
 
         ColumnLayout {
             spacing: 6
-            Layout.leftMargin: 60
-            Layout.rightMargin: 60
+            Layout.leftMargin: fontMetrics.height * 4
+            Layout.rightMargin: fontMetrics.height * 4
 
-            Text {
-                visible: hsi.getUserAt().length > 0
-                text: "User: " + hsi.getUserAt()
-                Layout.maximumWidth: _width - 120
-                color: system.windowText
+            component DetailsLabel: Label {
+                Layout.fillWidth: true
                 elide: Text.ElideRight
-                textFormat: Text.PlainText
                 wrapMode: Text.NoWrap
             }
 
-            Text {
-                visible: hsi.getModel().length > 0
-                text: "Model: " + hsi.getModel()
-                Layout.maximumWidth: _width - 120
-                color: system.windowText
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                wrapMode: Text.NoWrap
-            }
-
-            Text {
-                text: "CPU: " + hsi.getCPUInfo()
-                Layout.maximumWidth: _width - 120
-                color: system.windowText
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                wrapMode: Text.NoWrap
-            }
+            DetailsLabel { text: "User: " + hsi.getUserAt(); visible: hsi.getUserAt() != "" }
+            DetailsLabel { text: "Model: " + hsi.getModel(); visible: hsi.getModel() != "" }
+            DetailsLabel { text: "CPU: " + hsi.getCPUInfo() }
 
             Repeater {
                 model: hsi.getGPUInfoCount()
 
-                Text {
+                DetailsLabel {
                     required property int index
-
                     text: "GPU: " + hsi.getGPUInfo(index)
-                    Layout.maximumWidth: _width - 120
-                    color: system.windowText
-                    elide: Text.ElideRight
-                    textFormat: Text.PlainText
-                    wrapMode: Text.NoWrap
                 }
-
             }
 
-            Text {
-                text: "Memory: " + hsi.getRAMInfo()
-                Layout.maximumWidth: _width - 120
-                color: system.windowText
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                wrapMode: Text.NoWrap
-            }
-
-            Text {
-                text: "DE: " + hsi.getDE()
-                Layout.maximumWidth: _width - 120
-                color: system.windowText
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                wrapMode: Text.NoWrap
-            }
-
-            Text {
-                text: "Uptime: " + hsi.getUptime()
-                Layout.maximumWidth: _width - 120
-                color: system.windowText
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                wrapMode: Text.NoWrap
-            }
-
-            Text {
-                text: "Displays: " + hsi.getDisplays()
-                Layout.maximumWidth: _width - 120
-                color: system.windowText
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
-                wrapMode: Text.NoWrap
-            }
-
+            DetailsLabel { text: "Memory: " + hsi.getRAMInfo() }
+            DetailsLabel { text: "DE: " + hsi.getDE() }
+            DetailsLabel { text: "Uptime: " + hsi.getUptime() }
+            DetailsLabel { text: "Displays: " + hsi.getDisplays() }
         }
 
-        Rectangle {
-            color: "transparent"
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-        }
+        Item { Layout.fillHeight: true }
 
-        Rectangle {
-            visible: hsi.hasHyprland()
-            color: Qt.darker(system.text, 1.5)
-            Layout.preferredHeight: 1
-            Layout.fillWidth: true
-            Layout.leftMargin: 180
-            Layout.rightMargin: 180
-            Layout.topMargin: 10
-            Layout.bottomMargin: 10
-        }
+        HSeparator {}
 
         RowLayout {
             visible: hsi.hasHyprland()
@@ -259,20 +182,13 @@ ApplicationWindow {
 
             Button {
                 text: "Copy Hyprland System Info"
-                onClicked: (e) => {
-                    hsi.copySystemInfo();
-                }
+                onClicked: hsi.copySystemInfo();
             }
 
             Button {
                 text: "Copy Hyprland Version"
-                onClicked: (e) => {
-                    hsi.copyVersion();
-                }
+                onClicked: hsi.copyVersion();
             }
-
         }
-
     }
-
 }
