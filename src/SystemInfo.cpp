@@ -2,51 +2,53 @@
 #include "util/Utils.hpp"
 #include <qclipboard.h>
 #include <array>
+#include <qcontainerfwd.h>
 #include <qfiledevice.h>
 #include <qimage.h>
 #include <qobject.h>
 #include <qscreen.h>
 #include <qfile.h>
+#include <qstringliteral.h>
+#include <string>
+#include <format>
 
 #include <qguiapplication.h>
 #include <qtenvironmentvariables.h>
 #include <qwindowdefs.h>
 #include <unistd.h>
 #include <sys/utsname.h>
+#include <hyprutils/string/VarList.hpp>
+#include <hyprutils/string/String.hpp>
+
+using namespace Hyprutils::String;
 
 CSystemInternals::CSystemInternals(QObject* parent) : QObject(parent) {
     // gather data from os-release
-    {
-        QFile osInfo("/etc/os-release");
-        if (osInfo.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            auto stream = QTextStream(&osInfo);
+    if (auto data = readFile("/etc/os-release")) {
+        CVarList lines(data.value(), 0, '\n');
 
-            while (!stream.atEnd()) {
-                auto line  = stream.readLine();
-                auto split = line.split('=');
-                if (split.length() != 2)
-                    continue;
+        for (auto& line : lines) {
+            CVarList    param(line, 2, '=');
 
-                const auto& key   = split.at(0);
-                auto        value = split.at(1);
+            const auto& key   = param[0];
+            auto        value = param[1];
 
-                if (value.length() >= 2 && value.at(0) == '\"')
-                    value = value.sliced(1).chopped(1);
+            if (value.length() >= 2 && value.at(0) == '\"')
+                value = value.substr(1, value.length() - 2);
 
-                if (key == "PRETTY_NAME") {
-                    systemName = value;
-                    continue;
-                }
+            if (key == "PRETTY_NAME") {
+                systemName = QString::fromLocal8Bit(value);
+                continue;
+            }
 
-                if (key == "HOME_URL") {
-                    systemURL = value;
-                    continue;
-                }
+            if (key == "HOME_URL") {
+                systemURL = QString::fromLocal8Bit(value);
+                continue;
+            }
 
-                if (key == "LOGO") {
-                    systemLogoName = value;
-                    continue;
-                }
+            if (key == "LOGO") {
+                systemLogoName = QString::fromLocal8Bit(value);
+                continue;
             }
         }
     }
@@ -60,34 +62,25 @@ CSystemInternals::CSystemInternals(QObject* parent) : QObject(parent) {
     // get hyprland info
     if (getenv("HYPRLAND_INSTANCE_SIGNATURE")) {
         hlSystemVersion = execAndGet("hyprctl", {"version"});
-        auto tagIndex   = hlSystemVersion.indexOf("Tag: ");
+        auto DATA       = hlSystemVersion.toStdString();
 
-        if (tagIndex != -1) {
-            hyprlandVersionLong = hlSystemVersion.sliced(tagIndex + 5);
-            auto commaIndex     = hyprlandVersionLong.indexOf(',');
-            if (commaIndex != -1)
-                hyprlandVersionLong = hyprlandVersionLong.first(commaIndex);
-
-            auto dashIndex = hyprlandVersionLong.indexOf('-');
-            if (dashIndex == -1)
-                hyprlandVersion = hyprlandVersionLong;
-            else
-                hyprlandVersion = hyprlandVersionLong.first(dashIndex);
+        if (DATA.contains("Tag: ")) {
+            auto temp           = DATA.substr(DATA.find("Tag: ") + 5);
+            temp                = temp.substr(0, temp.find(","));
+            hyprlandVersionLong = QString::fromLocal8Bit(temp);
+            hyprlandVersion     = QString::fromLocal8Bit(temp.substr(0, temp.find("-")));
         }
 
-        if (hyprlandVersionLong.isEmpty() && hlSystemVersion.contains("at commit")) {
-            auto commitIndex = hlSystemVersion.indexOf("at commit ");
-            if (commitIndex != -1) {
-                hyprlandVersionLong = hlSystemVersion.sliced(commitIndex + 10);
-
-                hyprlandVersionLong = substrUntil(hyprlandVersionLong, ' ').left(7);
-                hyprlandVersion     = hyprlandVersionLong;
-            }
+        if (hyprlandVersionLong.length() <= 0 && DATA.contains("at commit")) {
+            auto temp           = DATA.substr(DATA.find("at commit") + 10);
+            temp                = temp.substr(0, temp.find(" "));
+            hyprlandVersionLong = QString::fromLocal8Bit(temp.substr(0, 7));
+            hyprlandVersion     = QString::fromLocal8Bit(temp.substr(0, 7));
         }
 
         if (hyprlandVersionLong.isEmpty()) {
-            hyprlandVersionLong = "unknown";
-            hyprlandVersion     = "unknown";
+            hyprlandVersionLong = QStringLiteral("unknown");
+            hyprlandVersion     = QStringLiteral("unknown");
         }
 
         hlSystemInfo = execAndGet("hyprctl", {"systeminfo"});
@@ -97,168 +90,125 @@ CSystemInternals::CSystemInternals(QObject* parent) : QObject(parent) {
 
     // get cpu info
     {
-        auto DATA = execAndGet("lscpu");
+        const auto DATA = execAndGet("lscpu").toStdString();
         if (DATA.contains("odel name")) {
-            QString arch, model, ghz, nproc;
-            auto    textStream = QTextStream(&DATA);
+            std::string arch, model, ghz, nproc;
 
-            while (!textStream.atEnd()) {
-                auto line         = textStream.readLine();
-                auto indexOfColon = line.indexOf(':');
-                if (indexOfColon == -1)
-                    continue;
-
-                auto left  = line.sliced(0, indexOfColon).trimmed();
-                auto right = line.sliced(indexOfColon + 1).trimmed();
+            CVarList    data(DATA, 0, '\n');
+            for (auto& line : data) {
+                std::string left, right;
+                left  = trim(line.substr(0, line.find(":")));
+                right = trim(line.substr(line.find(":") + 1));
 
                 if (left == "Architecture") {
                     arch = right;
                     continue;
                 }
-
                 if (left == "Model name") {
                     model = right;
                     continue;
                 }
-
                 if (left == "CPU(s)") {
                     nproc = right;
                     continue;
                 }
-
                 if (left == "CPU max MHz") {
-                    auto ok       = false;
-                    auto ghzFloat = right.toFloat(&ok);
-
-                    if (ok)
-                        ghz = QString("%1Ghz").arg(ghzFloat / 1000.F, 2, 'g', 2);
-                    else
-                        ghz = "?Ghz";
-
+                    try {
+                        ghz = std::format("{:.02}GHz", std::stof(right) / 1000.F);
+                    } catch (...) { ghz = "?GHz"; }
                     continue;
                 }
             }
 
-            cpuInfo = QString("%1 at %2x%3 (%4)").arg(model).arg(nproc).arg(ghz).arg(arch);
+            cpuInfo = QString::fromLocal8Bit(std::format("{} at {}x{} ({})", model, nproc, ghz, arch));
         }
     }
 
     // get gpu info
     {
-        auto DATA       = execAndGet("lspci", {"-vnn"});
-        auto textStream = QTextStream(&DATA);
+        auto       ok   = false;
+        const auto DATA = execAndGet("lspci", {"-vnn"}, &ok).toStdString();
+        CVarList   lines(DATA, 0, '\n');
 
-        if (!DATA.isEmpty())
-            gpuInfo.clear();
+        if (ok) {
+            for (auto& line : lines) {
+                if (!line.contains("VGA"))
+                    continue;
+                gpuInfo.emplace_back(QString::fromLocal8Bit(std::format("{}", line.substr(line.find(":", line.find("VGA")) + 2))));
+            }
 
-        while (!textStream.atEnd()) {
-            auto line = textStream.readLine();
-
-            auto indexOfVga = line.indexOf("VGA");
-            if (indexOfVga == -1)
-                continue;
-
-            line = line.sliced(indexOfVga);
-
-            auto indexOfColon = line.indexOf(": ");
-            if (indexOfColon == -1)
-                continue;
-
-            line = line.sliced(indexOfColon + 2);
-
-            gpuInfo.emplaceBack(line);
-        }
-
-        if (gpuInfo.isEmpty()) {
-            gpuInfo.emplaceBack("No GPUs found");
-        }
+            if (gpuInfo.isEmpty())
+                gpuInfo.emplaceBack(QStringLiteral("No GPUs found"));
+        } else
+            gpuInfo.emplaceBack(QStringLiteral("missing dependency: lspci"));
     }
 
     // get ram info
     {
-        auto DATA       = execAndGet("free");
-        auto textStream = QTextStream(&DATA);
+        const auto DATA = execAndGet("free").toStdString();
+        if (DATA.contains("total")) {
+            CVarList data(DATA, 0, '\n');
 
-        if (textStream.readLine().contains("total")) {
-            auto ramIntToReadable = [](QStringView datapoint) -> QString {
-                auto ok       = false;
-                auto ghzFloat = datapoint.toULongLong(&ok);
-
-                if (ok)
-                    return QString("%1GB").arg(ghzFloat / 1000000.0, 3, 'g', 3);
-                else
-                    return "[error]";
+            auto     ramIntToReadable = [](const std::string& datapoint) -> std::string {
+                try {
+                    auto asInt = std::stoull(datapoint);
+                    return std::format("{:.03}GB", asInt / 1000000.0);
+                } catch (...) { return "[error]"; }
             };
 
-            auto props = textStream.readLine().simplified().split(' ');
-            ramInfo    = QString("%1 / %2").arg(ramIntToReadable(props[2])).arg(ramIntToReadable(props[1]));
+            CVarList props(data[1], 0, 's', true);
+
+            ramInfo = QString::fromLocal8Bit(std::format("{} / {}", ramIntToReadable(props[2]), ramIntToReadable(props[1])));
         }
     }
 
     // other, misc
-    if (auto DE = qEnvironmentVariable("XDG_CURRENT_DESKTOP"); !DE.isEmpty())
-        this->DE = DE;
+    if (auto current = qEnvironmentVariable("XDG_CURRENT_DESKTOP"); !current.isEmpty())
+        DE = current;
 
-    {
-        QFile uptimeFile("/proc/uptime");
-        if (uptimeFile.open(QFile::ReadOnly | QFile::Text)) {
-            auto ok     = false;
-            auto uptime = substrUntil(uptimeFile.readAll(), ' ').toFloat(&ok);
+    if (auto procUptime = readFile("/proc/uptime")) {
+        CVarList data(procUptime.value(), 0, 's', true);
 
-            if (ok) {
-                int     uptimeSeconds = std::round(uptime);
-                int     uptimeDays    = std::floor(uptimeSeconds / 3600.0 / 24.0);
-                int     uptimeHours   = std::floor((uptimeSeconds % (3600 * 24)) / 3600.0);
-                int     uptimeMinutes = std::floor((uptimeSeconds % (3600)) / 60.0);
+        try {
+            int  uptimeSeconds = std::round(std::stof(data[0]));
+            int  uptimeDays    = std::floor(uptimeSeconds / 3600.0 / 24.0);
+            int  uptimeHours   = std::floor((uptimeSeconds % (3600 * 24)) / 3600.0);
+            int  uptimeMinutes = std::floor((uptimeSeconds % (3600)) / 60.0);
 
-                QString upStr;
-                auto    textStream = QTextStream(&upStr);
+            auto upStr = std::format("{}{}{}", (uptimeDays > 0 ? std::format("{} days, ", uptimeDays) : ""), (uptimeHours > 0 ? std::format("{} hours, ", uptimeHours) : ""),
+                                     (uptimeMinutes > 0 ? std::format("{} minutes, ", uptimeMinutes) : ""));
 
-                if (uptimeDays > 0)
-                    textStream << uptimeDays << " days, ";
+            if (!upStr.empty())
+                upStr = upStr.substr(0, upStr.length() - 2);
 
-                if (uptimeHours > 0)
-                    textStream << uptimeHours << " hours, ";
-
-                if (uptimeMinutes > 0)
-                    textStream << uptimeMinutes << " minutes, ";
-
-                if (!upStr.isEmpty())
-                    upStr.chop(2);
-
-                this->uptime = upStr;
-            }
-        }
+            uptime = QString::fromLocal8Bit(upStr);
+        } catch (...) { ; }
     }
 
     {
-        QString     screens;
-        QTextStream textStream(&screens);
+        std::string screens;
         for (auto* s : QGuiApplication::screens()) {
-            textStream << s->name() << ' ' << '(' << s->geometry().width() << 'x' << s->geometry().height() << "), ";
+            auto ratio = s->devicePixelRatio();
+            screens += std::format("{} ({}x{}), ", s->name().toStdString(), s->geometry().width() * ratio, s->geometry().height() * ratio);
         }
 
-        if (!screens.isEmpty())
-            screens.chop(2);
+        if (!screens.empty())
+            screens = screens.substr(0, screens.length() - 2);
 
-        this->screens = screens;
+        this->screens = QString::fromLocal8Bit(screens);
     }
 
     if (auto* username = getlogin()) {
         std::array<char, 128> hostname;
         if (gethostname(hostname.data(), hostname.size()) == 0)
-            user = QString("%1@%2").arg(QLatin1StringView(username)).arg(QLatin1StringView(hostname.data()));
+            user = QString::fromLocal8Bit(std::format("{}@{}", username, hostname.data()));
     }
 
     {
-        QFile productFile("/sys/devices/virtual/dmi/id/product_name");
-        if (productFile.open(QFile::ReadOnly | QFile::Text))
-            board = productFile.readAll().trimmed();
-        else {
-            productFile.setFileName("/sys/devices/virtual/dmi/id/board_name");
-            if (productFile.open(QFile::ReadOnly | QFile::Text))
-                board = productFile.readAll().trimmed();
-        }
+        if (auto productName = readFile("/sys/devices/virtual/dmi/id/product_name"))
+            board = QString::fromLocal8Bit(trim(productName.value()));
+        else if (auto boardName = readFile("/sys/devices/virtual/dmi/id/board_name"))
+            board = QString::fromLocal8Bit(trim(boardName.value()));
     }
 }
 

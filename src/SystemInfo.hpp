@@ -34,7 +34,7 @@ class CSystemInternals : public QObject {
     QString          hyprlandVersion, hyprlandVersionLong;
 
     QString          cpuInfo = "missing dependency: lscpu";
-    QVector<QString> gpuInfo = {"missing dependency: lspci"};
+    QVector<QString> gpuInfo;
     QString          ramInfo = "?";
 
     QString          hlSystemInfo = "[error]", hlSystemVersion = "[error]";

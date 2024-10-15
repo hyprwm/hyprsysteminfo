@@ -5,6 +5,8 @@
   kdePackages,
   pciutils,
   qt6,
+  pkg-config,
+  hyprutils,
   version ? "0",
 }: let
   inherit (lib.sources) cleanSource cleanSourceWith;
@@ -24,6 +26,7 @@ in
 
     nativeBuildInputs = [
       cmake
+      pkg-config
       qt6.wrapQtAppsHook
     ];
 
@@ -32,6 +35,7 @@ in
       qt6.qtbase
       qt6.qtsvg
       qt6.qtwayland
+      hyprutils
     ];
 
     preFixup = ''

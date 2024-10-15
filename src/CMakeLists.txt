@@ -11,4 +11,4 @@ qt_add_qml_module(hyprsysteminfo
     QML_FILES main.qml
 )
 
-target_link_libraries(hyprsysteminfo PRIVATE Qt6::Widgets Qt6::QuickControls2)
+target_link_libraries(hyprsysteminfo PRIVATE Qt6::Widgets Qt6::QuickControls2 PkgConfig::hyprutils)
