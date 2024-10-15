@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import org.hyprland.systeminfo
 
 ApplicationWindow {
     id: window
@@ -58,8 +59,8 @@ ApplicationWindow {
                 spacing: fontMetrics.height
 
                 Image {
-                    visible: hsi.hasSystemLogoName()
-                    source: "image://systemIcons/" + hsi.getSystemLogoName()
+                    visible: SystemInfo.systemLogoName != ""
+                    source: "image://systemIcons/" + SystemInfo.systemLogoName
                     sourceSize.width: firstPanelHeight
                     sourceSize.height: firstPanelHeight
                     Layout.preferredWidth: firstPanelHeight
@@ -76,17 +77,17 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignVCenter
 
                     Label {
-                        text: hsi.getSystemName()
+                        text: SystemInfo.systemName
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Label {
-                        text: hsi.getSystemURL()
+                        text: SystemInfo.systemUrl
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Label {
-                        text: hsi.getSystemKernel()
+                        text: SystemInfo.systemKernel
                         Layout.alignment: Qt.AlignHCenter
                     }
                 }
@@ -98,7 +99,7 @@ ApplicationWindow {
 
             RowLayout {
                 id: hyprlandInfo
-                visible: hsi.hasHyprland()
+                visible: SystemInfo.hyprlandVersionLong != ""
                 spacing: fontMetrics.height
 
                 Image {
@@ -123,13 +124,13 @@ ApplicationWindow {
                     }
 
                     Label {
-                        text: hsi.getHyprlandVersion()
+                        text: SystemInfo.hyprlandVersion
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Label {
-                        visible: hsi.getHyprlandVersion() != hsi.getHyprlandVersionLong()
-                        text: hsi.getHyprlandVersionLong()
+                        visible: SystemInfo.hyprlandVersion != text
+                        text: SystemInfo.hyprlandVersionLong
                         Layout.alignment: Qt.AlignHCenter
                     }
                 }
@@ -151,23 +152,23 @@ ApplicationWindow {
                 wrapMode: Text.NoWrap
             }
 
-            DetailsLabel { text: "User: " + hsi.getUserAt(); visible: hsi.getUserAt() != "" }
-            DetailsLabel { text: "Model: " + hsi.getModel(); visible: hsi.getModel() != "" }
-            DetailsLabel { text: "CPU: " + hsi.getCPUInfo() }
+            DetailsLabel { text: "User: " + SystemInfo.user; visible: text != "" }
+            DetailsLabel { text: "Model: " + SystemInfo.model; visible: text != "" }
+            DetailsLabel { text: "CPU: " + SystemInfo.cpuInfo }
 
             Repeater {
-                model: hsi.getGPUInfoCount()
+                model: SystemInfo.gpuInfo
 
                 DetailsLabel {
-                    required property int index
-                    text: "GPU: " + hsi.getGPUInfo(index)
+                    required property string modelData
+                    text: "GPU: " + modelData
                 }
             }
 
-            DetailsLabel { text: "Memory: " + hsi.getRAMInfo() }
-            DetailsLabel { text: "DE: " + hsi.getDE() }
-            DetailsLabel { text: "Uptime: " + hsi.getUptime() }
-            DetailsLabel { text: "Displays: " + hsi.getDisplays() }
+            DetailsLabel { text: "Memory: " + SystemInfo.ramInfo }
+            DetailsLabel { text: "DE: " + SystemInfo.de }
+            DetailsLabel { text: "Uptime: " + SystemInfo.uptime }
+            DetailsLabel { text: "Displays: " + SystemInfo.screens }
         }
 
         Item { Layout.fillHeight: true }
@@ -175,19 +176,19 @@ ApplicationWindow {
         HSeparator {}
 
         RowLayout {
-            visible: hsi.hasHyprland()
+            visible: SystemInfo.hyprlandVersionLong != ""
             spacing: 6
             Layout.leftMargin: 20
             Layout.rightMargin: 20
 
             Button {
                 text: "Copy Hyprland System Info"
-                onClicked: hsi.copySystemInfo();
+                onClicked: SystemInfo.copySystemInfo();
             }
 
             Button {
                 text: "Copy Hyprland Version"
-                onClicked: hsi.copyVersion();
+                onClicked: SystemInfo.copyVersion();
             }
         }
     }
