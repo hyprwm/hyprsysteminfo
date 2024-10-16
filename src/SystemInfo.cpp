@@ -19,10 +19,13 @@
 #include <sys/utsname.h>
 #include <hyprutils/string/VarList.hpp>
 #include <hyprutils/string/String.hpp>
+#include <cstdlib>
 
 using namespace Hyprutils::String;
 
 CSystemInternals::CSystemInternals(QObject* parent) : QObject(parent) {
+    setenv("LANG", "en_US.UTF-8", true);
+
     // gather data from os-release
     if (auto data = readFile("/etc/os-release")) {
         CVarList lines(data.value(), 0, '\n');
