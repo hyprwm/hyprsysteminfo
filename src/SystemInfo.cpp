@@ -189,7 +189,7 @@ CSystemInternals::CSystemInternals(QObject* parent) : QObject(parent) {
         std::string screens;
         for (auto* s : QGuiApplication::screens()) {
             auto ratio = s->devicePixelRatio();
-            screens += std::format("{} ({}x{}), ", s->name().toStdString(), s->geometry().width() * ratio, s->geometry().height() * ratio);
+            screens += std::format("{} ({}x{}), ", s->name().toStdString(), s->size().width() * ratio, s->size().height() * ratio);
         }
 
         if (!screens.empty())
