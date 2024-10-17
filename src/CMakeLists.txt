@@ -3,6 +3,7 @@ qt_add_executable(hyprsysteminfo
     util/Utils.cpp
     SystemInfo.cpp
     SystemIconProvider.cpp
+    WaylandScreen.cpp
 )
 
 qt_add_qml_module(hyprsysteminfo
@@ -11,4 +12,6 @@ qt_add_qml_module(hyprsysteminfo
     QML_FILES main.qml
 )
 
-target_link_libraries(hyprsysteminfo PRIVATE Qt6::Widgets Qt6::QuickControls2 PkgConfig::hyprutils)
+target_link_libraries(hyprsysteminfo PRIVATE
+    Qt6::Widgets Qt6::QuickControls2 Qt6::WaylandClientPrivate PkgConfig::hyprutils
+)
