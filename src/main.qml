@@ -36,6 +36,11 @@ ApplicationWindow {
         Layout.rightMargin: fontMetrics.height * 8
     }
 
+    SystemPalette {
+        id: system
+        colorGroup: SystemPalette.Active
+    }
+
     ColumnLayout {
         id: mainLayout
         spacing: fontMetrics.height
@@ -77,16 +82,19 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignVCenter
 
                     Label {
+                        color: system.windowText
                         text: SystemInfo.systemName
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Label {
+                        color: system.windowText
                         text: SystemInfo.systemUrl
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Label {
+                        color: system.windowText
                         text: SystemInfo.systemKernel
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -119,16 +127,19 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignVCenter
 
                     Label {
+                        color: system.windowText
                         text: "Hyprland"
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Label {
+                        color: system.windowText
                         text: SystemInfo.hyprlandVersion
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Label {
+                        color: system.windowText
                         visible: SystemInfo.hyprlandVersion != text
                         text: SystemInfo.hyprlandVersionLong
                         Layout.alignment: Qt.AlignHCenter
@@ -147,6 +158,7 @@ ApplicationWindow {
             Layout.rightMargin: fontMetrics.height * 4
 
             component DetailsLabel: Label {
+                color: system.windowText
                 Layout.fillWidth: true
                 elide: Text.ElideRight
                 wrapMode: Text.NoWrap
