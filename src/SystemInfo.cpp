@@ -1,4 +1,5 @@
 #include "SystemInfo.hpp"
+#include "WaylandScreen.hpp"
 #include "util/Utils.hpp"
 #include <qclipboard.h>
 #include <array>
@@ -190,9 +191,8 @@ CSystemInternals::CSystemInternals(QObject* parent) : QObject(parent) {
 
     {
         std::string screens;
-        for (auto* s : QGuiApplication::screens()) {
-            auto ratio = s->devicePixelRatio();
-            screens += std::format("{} ({}x{}), ", s->name().toStdString(), s->size().width() * ratio, s->size().height() * ratio);
+        for (const auto& s : SWaylandScreenInfo::enumerateScreens()) {
+            screens += std::format("{} ({}x{}), ", s.name.toStdString(), s.pixelSize.width(), s.pixelSize.height());
         }
 
         if (!screens.empty())
