@@ -10,6 +10,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
     };
+
+    hyprland-qt-support = {
+      url = "github:hyprwm/hyprland-qt-support";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+    };
   };
 
   outputs = {

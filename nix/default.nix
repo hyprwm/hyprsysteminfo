@@ -8,7 +8,7 @@
   pkg-config,
   hyprutils,
   pciutils,
-  kdePackages,
+  hyprland-qt-support,
   version ? "0",
 }: let
   inherit (lib.strings) makeBinPath;
@@ -31,8 +31,7 @@ in
       qt6.qtsvg
       qt6.qtwayland
       hyprutils
-      kdePackages.qqc2-desktop-style
-      kdePackages.kirigami
+      hyprland-qt-support
     ];
 
     preFixup = ''
