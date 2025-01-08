@@ -12,9 +12,7 @@
       qtbase
       qtdeclarative
       qtwayland
-      pkgs.kdePackages.qqc2-desktop-style
-      # see https://github.com/NixOS/nixpkgs/blob/e186dd1a34be7a76c6e2c038ab4b759faec32d5d/pkgs/kde/frameworks/kirigami/default.nix#L9-L11
-      pkgs.kdePackages.kirigami.unwrapped
+      pkgs.hyprland-qt-support
     ]);
   in ''
     # Add Qt-related environment variables.

@@ -15,6 +15,7 @@ in {
 
   hyprsysteminfo = lib.composeManyExtensions [
     inputs.hyprutils.overlays.default
+    inputs.hyprland-qt-support.overlays.default
     (final: prev: {
       hyprsysteminfo = final.callPackage ./. {
         version = "${version}+date=${date}_${self.shortRev or "dirty"}";
