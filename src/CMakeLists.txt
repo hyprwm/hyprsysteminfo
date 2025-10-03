@@ -1,3 +1,5 @@
+find_package(Qt6 REQUIRED COMPONENTS WaylandClientPrivate)
+
 qt_add_executable(hyprsysteminfo
     main.cpp
     util/Utils.cpp
