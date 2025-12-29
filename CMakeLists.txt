@@ -37,12 +37,11 @@ pkg_check_modules(
   deps
   REQUIRED
   IMPORTED_TARGET
-  hyprutils
   hyprtoolkit
-  pixman-1
-  libdrm
   hyprutils>=0.10.2
+  libdrm
   libpci
+  pixman-1
 )
 
 set(CMAKE_CXX_STANDARD 23)
@@ -70,7 +69,7 @@ add_executable(hyprsysteminfo ${SRCFILES})
 target_link_libraries(hyprsysteminfo PkgConfig::deps)
 
 install(
-  FILES contrib/hyprsysteminfo.desktop
+  FILES assets/install/hyprsysteminfo.desktop
   DESTINATION "share/applications")
 
 install(TARGETS hyprsysteminfo)
