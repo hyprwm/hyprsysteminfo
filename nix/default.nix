@@ -21,7 +21,7 @@ stdenv.mkDerivation {
   pname = "hyprsysteminfo";
   inherit version;
 
-  src = nix-gitignore.gitignoreSource [] ./..;
+  src = nix-gitignore.gitignoreSource [ ] ./..;
 
   nativeBuildInputs = [
     cmake
@@ -44,7 +44,7 @@ stdenv.mkDerivation {
     description = "System info utility for Hyprland";
     homepage = "https://github.com/hyprwm/hyprsysteminfo";
     license = lib.licenses.bsd3;
-    maintainers = [lib.maintainers.fufexan];
+    maintainers = [ lib.maintainers.fufexan ];
     mainProgram = "hyprsysteminfo";
     platforms = lib.platforms.linux;
   };

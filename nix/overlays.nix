@@ -2,15 +2,19 @@
   inputs,
   self,
   lib,
-}: let
-  mkDate = longDate: (lib.concatStringsSep "-" [
-    (builtins.substring 0 4 longDate)
-    (builtins.substring 4 2 longDate)
-    (builtins.substring 6 2 longDate)
-  ]);
+}:
+let
+  mkDate =
+    longDate:
+    (lib.concatStringsSep "-" [
+      (builtins.substring 0 4 longDate)
+      (builtins.substring 4 2 longDate)
+      (builtins.substring 6 2 longDate)
+    ]);
   date = mkDate (self.lastModifiedDate or "19700101");
   version = lib.removeSuffix "\n" (builtins.readFile ../VERSION);
-in {
+in
+{
   default = self.overlays.hyprsysteminfo;
 
   hyprsysteminfo = lib.composeManyExtensions [

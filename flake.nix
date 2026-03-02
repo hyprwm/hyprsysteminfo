@@ -58,34 +58,39 @@
     };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    systems,
-    ...
-  } @ inputs: let
-    inherit (nixpkgs) lib;
-    eachSystem = lib.genAttrs (import systems);
-    pkgsFor = eachSystem (
-      system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      systems,
+      ...
+    }@inputs:
+    let
+      inherit (nixpkgs) lib;
+      eachSystem = lib.genAttrs (import systems);
+      pkgsFor = eachSystem (
+        system:
         import nixpkgs {
           localSystem = system;
-          overlays = [self.overlays.default];
+          overlays = [ self.overlays.default ];
         }
-    );
-  in {
-    overlays = import ./nix/overlays.nix {inherit inputs self lib;};
+      );
+    in
+    {
+      formatter = eachSystem (system: pkgsFor.${system}.nixfmt-tree);
 
-    packages = eachSystem (system: {
-      default = self.packages.${system}.hyprsysteminfo;
-      inherit (pkgsFor.${system}) hyprsysteminfo;
-    });
+      overlays = import ./nix/overlays.nix { inherit inputs self lib; };
 
-    devShells = eachSystem (system: {
-      default = import ./nix/shell.nix {
-        pkgs = pkgsFor.${system};
+      packages = eachSystem (system: {
+        default = self.packages.${system}.hyprsysteminfo;
         inherit (pkgsFor.${system}) hyprsysteminfo;
-      };
-    });
-  };
+      });
+
+      devShells = eachSystem (system: {
+        default = import ./nix/shell.nix {
+          pkgs = pkgsFor.${system};
+          inherit (pkgsFor.${system}) hyprsysteminfo;
+        };
+      });
+    };
 }
