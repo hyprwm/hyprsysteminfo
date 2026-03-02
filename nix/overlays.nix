@@ -17,7 +17,7 @@ in
 {
   default = self.overlays.hyprsysteminfo;
 
-  hyprsysteminfo = lib.composeManyExtensions [
+  hyprsysteminfo-with-deps = lib.composeManyExtensions [
     inputs.aquamarine.overlays.default
     inputs.hyprgraphics.overlays.default
     inputs.hyprlang.overlays.default
@@ -26,13 +26,15 @@ in
     inputs.hyprtoolkit.overlays.default
     inputs.hyprwire.overlays.default
     self.overlays.glaze
-    (final: prev: {
-      hyprsysteminfo = final.callPackage ./. {
-        version = "${version}+date=${date}_${self.shortRev or "dirty"}";
-        stdenv = final.gcc15Stdenv;
-      };
-    })
+    self.overlays.hyprsysteminfo
   ];
+
+  hyprsysteminfo = final: prev: {
+    hyprsysteminfo = final.callPackage ./. {
+      version = "${version}+date=${date}_${self.shortRev or "dirty"}";
+      stdenv = final.gcc15Stdenv;
+    };
+  };
 
   # Even though glaze itself disables it by default, nixpkgs sets ENABLE_SSL set to true.
   # Since we don't include openssl, the build failes without the `enableSSL = false;` override

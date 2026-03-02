@@ -72,7 +72,7 @@
         system:
         import nixpkgs {
           localSystem = system;
-          overlays = [ self.overlays.default ];
+          overlays = [ self.overlays.hyprsysteminfo-with-deps ];
         }
       );
     in
