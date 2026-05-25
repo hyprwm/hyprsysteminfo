@@ -5,6 +5,7 @@
 #include <optional>
 #include <filesystem>
 #include <vector>
+#include <span>
 
 namespace Info {
     std::expected<std::string, std::string> getDistroLogoName();
