@@ -32,7 +32,7 @@ in
   hyprsysteminfo = final: prev: {
     hyprsysteminfo = final.callPackage ./. {
       version = "${version}+date=${date}_${self.shortRev or "dirty"}";
-      stdenv = final.gcc15Stdenv;
+      stdenv = final.gcc16Stdenv;
     };
   };
 
