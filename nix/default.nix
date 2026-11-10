@@ -5,15 +5,9 @@
 
   cmake,
   pkg-config,
-  aquamarine,
-  cairo,
   glaze-hyprsysteminfo,
-  hyprgraphics,
   hyprtoolkit,
-  hyprutils,
-  libdrm,
   pciutils,
-  pixman,
   version ? "0",
 }:
 
@@ -29,15 +23,9 @@ stdenv.mkDerivation {
   ];
 
   buildInputs = [
-    aquamarine
-    cairo
     glaze-hyprsysteminfo
-    hyprgraphics
     hyprtoolkit
-    hyprutils
-    libdrm
     pciutils
-    pixman
   ];
 
   meta = {
